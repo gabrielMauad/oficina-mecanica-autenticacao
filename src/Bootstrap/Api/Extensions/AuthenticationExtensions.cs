@@ -8,7 +8,8 @@ namespace Api.Extensions;
 /// <summary>
 /// Configura autenticação JWT (HS256, segredo compartilhado — ver ADR-001) e autorização por
 /// papel (ver ADR-003). A aplicação aceita tokens de dois emissores: o próprio login (papel
-/// Oficina) e a Function Serverless de autenticação por CPF (papel Cliente) — ver RFC-001 §4.1.
+/// Oficina) e a Function Serverless de autenticação por CPF (papel Cliente). Ambos assinam com o
+/// mesmo segredo e a mesma audience; os emissores aceitos vêm de <c>Jwt:ValidIssuers</c>.
 /// </summary>
 public static class AuthenticationExtensions
 {

@@ -1,6 +1,18 @@
 @Api_HostAddress = http://localhost:5294
 
-GET {{Api_HostAddress}}/weatherforecast/
+# Login do administrador da oficina (credenciais de desenvolvimento do appsettings.Development.json)
+POST {{Api_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
 Accept: application/json
+
+{
+  "email": "admin@oficina.com",
+  "senha": "admin123"
+}
+
+###
+
+# Readiness do serviço
+GET {{Api_HostAddress}}/healthz/ready
 
 ###

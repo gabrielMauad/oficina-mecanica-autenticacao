@@ -69,7 +69,6 @@ app.MapControllers();
 app.MapOpenApiDocumentation();
 app.MapApiHealthChecks();
 
-
 await app.RunAsync();
 
 // Necessário para o WebApplicationFactory<Program> nos testes de integração
