@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/src/Bootstrap/">
+    <Project Path="src/Bootstrap/Api/Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Autenticacao/">
+    <Project Path="src/Modules/Autenticacao/Autenticacao.Adapters/Autenticacao.Adapters.csproj" />
+    <Project Path="src/Modules/Autenticacao/Autenticacao.Application/Autenticacao.Application.csproj" />
+    <Project Path="src/Modules/Autenticacao/Autenticacao.Infrastructure/Autenticacao.Infrastructure.csproj" />
+    <Project Path="src/Modules/Autenticacao/Autenticacao.Web/Autenticacao.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/SharedKernel/">
+    <Project Path="src/SharedKernel/SharedKernel.Application/SharedKernel.Application.csproj" />
+    <Project Path="src/SharedKernel/SharedKernel.Domain/SharedKernel.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/IntegrationTests/IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Modules/Autenticacao/">
+    <Project Path="tests/Modules/Autenticacao/Autenticacao.Application.Tests/Autenticacao.Application.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/SharedKernel/">
+    <Project Path="tests/SharedKernel/SharedKernel.Application.Tests/SharedKernel.Application.Tests.csproj" />
+  </Folder>
+</Solution>

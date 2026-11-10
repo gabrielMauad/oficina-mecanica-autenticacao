@@ -1,0 +1,36 @@
+# Serviço de autenticação (sem banco de dados) — entra na rede externa `oficina-local`.
+#
+# Dependência: a rede `oficina-local` e o Jaeger (`oficina-jaeger`) são criados pelo
+# `docker-compose.infra.yml` do repositório `oficina-mecanica-app`. Suba-o antes:
+#   docker compose -f docker-compose.infra.yml up -d      (no repo oficina-mecanica-app)
+#   docker compose up --build                             (neste repo)
+services:
+  oficina-autenticacao:
+    build:
+      context: .
+      dockerfile: src/Bootstrap/Api/Dockerfile
+    container_name: oficina-autenticacao
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Jwt__Secret=docker-dev-secret-key-replace-in-prod-000
+      - Jwt__Issuer=oficina-mecanica-app
+      - Jwt__Audience=oficina-mecanica-api
+      - Jwt__ValidIssuers__0=oficina-mecanica-app
+      - Jwt__ValidIssuers__1=oficina-mecanica-auth
+      - Auth__AdminEmail=admin@oficina.com
+      - Auth__AdminSenha=admin123
+      - OpenApi__Enabled=true
+      - OTEL_SERVICE_NAME=oficina-mecanica-autenticacao
+      # OTLP para o Jaeger compartilhado (docker-compose.infra.yml do repo oficina-mecanica-app).
+      # O Jaeger all-in-one não implementa o serviço OTLP de logs; essas tentativas falham em
+      # silêncio no self-diagnostics do OpenTelemetry.
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://oficina-jaeger:4317
+    networks:
+      - oficina-local
+
+networks:
+  oficina-local:
+    external: true
