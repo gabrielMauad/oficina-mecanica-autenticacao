@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autenticacao-config
+  namespace: oficina-mecanica
+  labels:
+    app: autenticacao
+    app.kubernetes.io/part-of: oficina-mecanica
+data:
+  # Production, nao Development: o publish do SDK inclui appsettings.Development.json na imagem,
+  # mas com ASPNETCORE_ENVIRONMENT=Production o ASP.NET Core so carrega appsettings.json (+
+  # appsettings.Production.json, inexistente). Toda configuracao obrigatoria em runtime vem deste
+  # ConfigMap e do Secret autenticacao-secrets (criado pela pipeline) - nada de branch por ambiente
+  # no codigo.
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+  # JWT HS256 com segredo compartilhado entre os servicos (o segredo em si vem do Secret). Este
+  # servico e o unico que EMITE o token da oficina (Jwt__Issuer); o do cliente e emitido pela
+  # Lambda, e os demais servicos apenas validam (Jwt__ValidIssuers__*).
+  Jwt__Issuer: "oficina-mecanica-app"
+  Jwt__Audience: "oficina-mecanica-api"
+  Jwt__ValidIssuers__0: "oficina-mecanica-app"
+  Jwt__ValidIssuers__1: "oficina-mecanica-auth"
+  # Login da oficina: o e-mail nao e sensivel; a senha (Auth__AdminSenha) vem do Secret.
+  Auth__AdminEmail: "admin@oficina.com"
+  OpenApi__Enabled: "true"
+  # Nome do servico nos sinais do OpenTelemetry (service.name).
+  OTEL_SERVICE_NAME: "oficina-mecanica-autenticacao"
+  # Destino OTLP e o New Relic (data center US), endpoint publico - nao e segredo, so a license
+  # key (OTEL_EXPORTER_OTLP_HEADERS) e, e essa vem do Secret autenticacao-secrets, nunca daqui.
+  # Protocolo http/protobuf na porta 4318, nao gRPC/4317: com o endpoint geral (sem variavel por
+  # sinal), o exportador OTLP do .NET anexa /v1/traces, /v1/metrics e /v1/logs por sinal quando o
+  # protocolo e http/protobuf - um unico par de variaveis cobre os tres sinais.
+  OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp.nr-data.net:4318"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
