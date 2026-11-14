@@ -258,8 +258,7 @@ dotnet test OficinaMecanica.Autenticacao.slnx   # unitários + integração; nã
   (commit `eebcaa5`; [log do job](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43552018471/job/132316408854)).
   O run da `main` aparece como falho: o job de imagem falha ao carregar as credenciais de sessão da AWS Academy e o deploy é pulado; o `Build & Test` (com o gate de cobertura) está verde — ver
   [a limitação](#deploy-no-eks-e-limitação-da-aws-academy).
-- <!-- sonarcloud-link -->SonarCloud: projeto ainda não configurado neste repositório; o link público
-  do projeto e a nota serão registrados aqui quando a análise estiver ativa.
+- SonarCloud: [análise do projeto](https://sonarcloud.io/project/overview?id=gabrielMauad_oficina-mecanica-autenticacao).
 
 A métrica é a cobertura de linhas de todas as assemblies de `src/`, medida com coverlet (formato
 OpenCover) e consolidada com o ReportGenerator. As únicas exclusões, definidas em
