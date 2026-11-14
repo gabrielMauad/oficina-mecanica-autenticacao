@@ -79,4 +79,17 @@ public class ValidationBehaviorTests
 
         Assert.Equal("seguiu", resposta);
     }
+
+    [Fact(DisplayName = "Dois validators e apenas um falha — a mensagem aparece uma única vez")]
+    public async Task DoisValidators_UmFalha_MensagemApareceUmaVez()
+    {
+        var behavior = new ValidationBehavior<Comando, Result<string>>([new NomeObrigatorio(), new NomeComLimite()]);
+        var invertido = new ValidationBehavior<Comando, Result<string>>([new NomeComLimite(), new NomeObrigatorio()]);
+
+        var result = await behavior.Handle(new Comando(""), _ => Task.FromResult(Result.Success("ok")), default);
+        var resultInvertido = await invertido.Handle(new Comando(""), _ => Task.FromResult(Result.Success("ok")), default);
+
+        Assert.Equal("Nome é obrigatório.", result.Error.Message);
+        Assert.Equal("Nome é obrigatório.", resultInvertido.Error.Message);
+    }
 }

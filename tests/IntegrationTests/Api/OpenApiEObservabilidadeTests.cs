@@ -39,6 +39,23 @@ public class OpenApiEObservabilidadeTests : IClassFixture<AutenticacaoWebApplica
         Assert.Equal("JWT", bearer.GetProperty("bearerFormat").GetString());
     }
 
+    [Fact(DisplayName = "OpenApi habilitado — endpoints anônimos de autenticação não declaram requisito de segurança")]
+    public async Task OpenApiHabilitado_OperacoesAnonimasNaoDeclaramSeguranca()
+    {
+        using var client = CriarClienteComOpenApi(habilitado: true);
+
+        var json = await client.GetStringAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
+
+        using var doc = JsonDocument.Parse(json);
+        var operacoes = doc.RootElement.GetProperty("paths").EnumerateObject()
+            .Where(p => p.Name.StartsWith("/api/v1/auth"))
+            .SelectMany(p => p.Value.EnumerateObject())
+            .Select(op => op.Value)
+            .ToList();
+        Assert.NotEmpty(operacoes);
+        Assert.All(operacoes, op => Assert.False(op.TryGetProperty("security", out _)));
+    }
+
     [Fact(DisplayName = "OpenApi habilitado — raiz redireciona para a UI do Scalar")]
     public async Task OpenApiHabilitado_RaizDeveRedirecionarParaScalar()
     {
