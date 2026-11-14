@@ -45,7 +45,7 @@ conhece a configuração. Não depende de PostgreSQL, SQS/SNS nem do LocalStack.
 ```mermaid
 flowchart LR
     CLI["Cliente HTTP<br/>(operador da oficina)"]
-    GW["API Gateway<br/>ANY /api/v1/auth/proxy<br/>e /autenticacao/* (técnica)"]
+    GW["API Gateway<br/>ANY /api/v1/auth/{proxy+}<br/>e /autenticacao/* (técnica)"]
     NLB["NLB interna<br/>listener TCP 30081"]
     CLI --> GW -->|VPC Link| NLB
 
@@ -206,8 +206,7 @@ curl -X POST "$API_URL/api/v1/auth/login" -H "Content-Type: application/json" \
   -d '{"email":"admin@oficina.com","senha":"<senha do admin>"}'
 ```
 
-A coleção de requisições do sistema inteiro fica no repositório
-[`oficina-mecanica-app`](https://github.com/gabrielMauad/oficina-mecanica-app/blob/main/docs/guias/collection_bruno.yml).
+As coleções de requisições do sistema inteiro ficam no repositório `oficina-mecanica-app`: [Bruno](https://github.com/gabrielMauad/oficina-mecanica-app/blob/main/docs/guias/collection_bruno.yml) e [Postman](https://github.com/gabrielMauad/oficina-mecanica-app/blob/main/docs/guias/collection_postman.json).
 
 ## O token emitido e a relação com a Lambda
 
@@ -257,16 +256,17 @@ dotnet test OficinaMecanica.Autenticacao.slnx   # unitários + integração; nã
   *Gate de cobertura (linhas >= 80%)* do job **Build & Test** no run da `main`
   [43552018471](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43552018471)
   (commit `eebcaa5`; [log do job](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43552018471/job/132316408854)).
-  O job **Build & Test** desse run terminou verde; os jobs seguintes (imagem e deploy) dependem das
-  credenciais de sessão da AWS Academy — ver [a limitação](#deploy-no-eks-e-limitação-da-aws-academy).
+  O run da `main` aparece como falho: o job de imagem falha ao carregar as credenciais de sessão da AWS Academy e o deploy é pulado; o `Build & Test` (com o gate de cobertura) está verde — ver
+  [a limitação](#deploy-no-eks-e-limitação-da-aws-academy).
 - <!-- sonarcloud-link -->SonarCloud: projeto ainda não configurado neste repositório; o link público
   do projeto e a nota serão registrados aqui quando a análise estiver ativa.
 
 A métrica é a cobertura de linhas de todas as assemblies de `src/`, medida com coverlet (formato
 OpenCover) e consolidada com o ReportGenerator. As únicas exclusões, definidas em
 [`coverlet.runsettings`](coverlet.runsettings) e iguais às do SonarCloud (`sonar.coverage.exclusions`),
-são `**/Migrations/**`, `**/Program.cs` (composição do host, exercitada só pelos testes de integração)
-e `**/obj/**` (código gerado em build). Para reproduzir localmente:
+são `**/Program.cs` (composição do host, exercitada só pelos testes de integração) e `**/obj/**`
+(código gerado em build); o padrão `**/Migrations/**`, que também consta nos arquivos, não se aplica a
+este serviço, que não tem banco de dados. Para reproduzir localmente:
 
 ```bash
 dotnet test OficinaMecanica.Autenticacao.slnx --settings coverlet.runsettings --collect "XPlat Code Coverage"
@@ -283,7 +283,7 @@ reportgenerator "-reports:**/coverage.opencover.xml" "-targetdir:coverage-report
 
 1. **Build & Test** — `dotnet restore/build/test` na `OficinaMecanica.Autenticacao.slnx`, relatórios
    OpenCover por projeto de teste e o **gate de cobertura**, que falha o job se a cobertura de linhas
-   ficar abaixo de 80 %. O nome do job é o referenciado pela proteção da `main`. A análise do
+   ficar abaixo de 80 %. O nome do job `Build & Test` é mantido estável porque é o status check a ser exigido na proteção da `main`. A análise do
    SonarCloud é opcional: roda só se existirem o secret `SONAR_TOKEN` e as variables
    `SONAR_PROJECT_KEY` e `SONAR_ORGANIZATION`; sem eles, build, testes e gate seguem normalmente.
 2. **Build & Push image (ECR)** — constrói a imagem pelo `src/Bootstrap/Api/Dockerfile` e publica no
@@ -324,9 +324,7 @@ Gateway chega ao pod via VPC Link → NLB → NodePort. Dentro do cluster, o ser
 IAM; por isso a federação OIDC entre o GitHub Actions e a AWS não é possível
 ([ADR-006](https://github.com/gabrielMauad/oficina-mecanica-app/blob/main/docs/arquitetura/adrs/006-credenciais-de-nuvem-no-cicd.md)).
 As pipelines autenticam com as **credenciais temporárias de sessão** do laboratório, guardadas como
-secrets do repositório e **renovadas manualmente a cada sessão**. Com credenciais vencidas, os jobs de
-imagem e deploy falham no passo *Configure AWS credentials* (é o que se vê no run da `main` citado
-acima), enquanto `Build & Test` continua independente da AWS. Para publicar de novo: atualize os três
+secrets do repositório e **renovadas manualmente a cada sessão**. Com credenciais vencidas, o job de imagem falha no passo *Configure AWS credentials* e o deploy é pulado (é o que se vê no run da `main` citado acima, que aparece como falho), enquanto o `Build & Test` continua independente da AWS e verde. Para publicar de novo: atualize os três
 secrets de sessão e reexecute o **CI/CD** por `workflow_dispatch` (aba *Actions* → *CI/CD* →
 *Run workflow*) ou *Re-run* do run — não é necessário um novo commit.
 
