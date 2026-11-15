@@ -254,10 +254,8 @@ dotnet test OficinaMecanica.Autenticacao.slnx   # unitários + integração; nã
 
 - **Cobertura de linhas do serviço: 97,1 %** (mínimo exigido pelo gate: 80 %) — passo
   *Gate de cobertura (linhas >= 80%)* do job **Build & Test** no run da `main`
-  [43552018471](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43552018471)
-  (commit `eebcaa5`; [log do job](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43552018471/job/132316408854)).
-  O run da `main` aparece como falho: o job de imagem falha ao carregar as credenciais de sessão da AWS Academy e o deploy é pulado; o `Build & Test` (com o gate de cobertura) está verde — ver
-  [a limitação](#deploy-no-eks-e-limitação-da-aws-academy).
+  [43663037811](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43663037811)
+  (commit `da72675`; [log do job](https://github.com/gabrielMauad/oficina-mecanica-autenticacao/actions/runs/43663037811/job/132656315810)).
 - SonarCloud: [análise do projeto](https://sonarcloud.io/project/overview?id=gabrielMauad_oficina-mecanica-autenticacao).
 
 A métrica é a cobertura de linhas de todas as assemblies de `src/`, medida com coverlet (formato
@@ -323,7 +321,7 @@ Gateway chega ao pod via VPC Link → NLB → NodePort. Dentro do cluster, o ser
 IAM; por isso a federação OIDC entre o GitHub Actions e a AWS não é possível
 ([ADR-006](https://github.com/gabrielMauad/oficina-mecanica-app/blob/main/docs/arquitetura/adrs/006-credenciais-de-nuvem-no-cicd.md)).
 As pipelines autenticam com as **credenciais temporárias de sessão** do laboratório, guardadas como
-secrets do repositório e **renovadas manualmente a cada sessão**. Com credenciais vencidas, o job de imagem falha no passo *Configure AWS credentials* e o deploy é pulado (é o que se vê no run da `main` citado acima, que aparece como falho), enquanto o `Build & Test` continua independente da AWS e verde. Para publicar de novo: atualize os três
+secrets do repositório e **renovadas manualmente a cada sessão**. Com credenciais vencidas, o job de imagem falha no passo *Configure AWS credentials* e o deploy é pulado, enquanto o `Build & Test` continua independente da AWS e verde. Para publicar de novo: atualize os três
 secrets de sessão e reexecute o **CI/CD** por `workflow_dispatch` (aba *Actions* → *CI/CD* →
 *Run workflow*) ou *Re-run* do run — não é necessário um novo commit.
 
